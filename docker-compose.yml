@@ -11,6 +11,7 @@ services:
     env_file: .env
     volumes:
       - pg_data_kittygram:/var/lib/postgresql/data
+      
   backend:
     build: ./backend/
     env_file: .env

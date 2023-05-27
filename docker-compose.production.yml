@@ -4,6 +4,7 @@ volumes:
   pg_data_kittygram_production:
   kittygram_static:
   media:
+
 services:
   db:
     image: postgres:13
