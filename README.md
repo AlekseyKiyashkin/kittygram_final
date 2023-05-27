@@ -1,26 +1,128 @@
-#  Как работать с репозиторием финального задания
+# Kittygram
 
-## Что нужно сделать
+## Установка 
 
-Настроить запуск проекта Kittygram в контейнерах и CI/CD с помощью GitHub Actions
+1. Форкните репозиторий, клонируйте его, и перейдите в него:
 
-## Как проверить работу с помощью автотестов
+    ```bash
+    git clone ...
+    ```
+    ```bash
+    cd kittygram_final
+    ```
+2. Создайте файл .env и заполните его своими данными:
 
-В корне репозитория создайте файл tests.yml со следующим содержимым:
-```yaml
-repo_owner: ваш_логин_на_гитхабе
-kittygram_domain: полная ссылка (https://доменное_имя) на ваш проект Kittygram
-taski_domain: полная ссылка (https://доменное_имя) на ваш проект Taski
-dockerhub_username: ваш_логин_на_докерхабе
-```
+    ```bash
+    POSTGRES_DB=...
+    POSTGRES_USER=...
+    POSTGRES_PASSWORD=...
+    DB_HOST=...
+    DB_PORT=...
+    ```
 
-Скопируйте содержимое файла `.github/workflows/main.yml` в файл `kittygram_workflow.yml` в корневой директории проекта.
+### Создание Docker-образов
 
-Для локального запуска тестов создайте виртуальное окружение, установите в него зависимости из backend/requirements.txt и запустите в корневой директории проекта `pytest`.
+1. Для создания Docker-образов последовательно выполните следующие команды, замените username на ваш логин на DockerHub:
 
-## Чек-лист для проверки перед отправкой задания
+    ```bash
+    cd frontend
+    docker build -t username/kittygram_frontend .
+    cd ../backend
+    docker build -t username/kittygram_backend .
+    cd ../nginx
+    docker build -t username/kittygram_gateway . 
+    ```
 
-- Проект Taski доступен по доменному имени, указанному в `tests.yml`.
-- Проект Kittygram доступен по доменному имени, указанному в `tests.yml`.
-- Пуш в ветку main запускает тестирование и деплой Kittygram, а после успешного деплоя вам приходит сообщение в телеграм.
-- В корне проекта есть файл `kittygram_workflow.yml`.
+2. Загрузите образы на DockerHub:
+
+    ```bash
+    docker push username/kittygram_frontend
+    docker push username/kittygram_backend
+    docker push username/kittygram_gateway
+    ```
+
+### Деплой на сервере
+
+1. Подключитесь к удаленному серверу
+
+    ```bash
+    ssh -i путь_до_файла_с_SSH_ключом/название_файла_с_SSH_ключом имя_пользователя@ip_адрес_сервера 
+    ```
+
+2. Создайте на сервере директорию kittygram
+
+    ```bash
+    mkdir kittygram
+    ```
+
+3. Для установки docker compose на сервер, поочередно выполните следующие команды:
+
+    ```bash
+    sudo apt update
+    sudo apt install curl
+    curl -fSL https://get.docker.com -o get-docker.sh
+    sudo sh ./get-docker.sh
+    sudo apt-get install docker-compose-plugin
+    ```
+
+4. Скопируйте на сервер в директорию kittygram/ файлы docker-compose.production.yml и .env:
+
+    ```bash
+    scp -i path_to_SSH/SSH_name docker-compose.production.yml username@server_ip:/home/username/kittygram/docker-compose.production.yml
+    ```
+
+5. Переходите в директорию kittygram/ и запустите docker compose в режиме демона:
+
+    ```bash
+    sudo docker compose -f docker-compose.production.yml up -d
+    ```
+
+6. Выполните миграции, соберите статические файлы бэкенда и скопируйте их в /backend_static/static/:
+
+    ```bash
+    sudo docker compose -f docker-compose.production.yml exec backend python manage.py migrate
+    sudo docker compose -f docker-compose.production.yml exec backend python manage.py collectstatic
+    sudo docker compose -f docker-compose.production.yml exec backend cp -r /app/collected_static/. /backend_static/static/
+    ```
+
+7. На сервере в редакторе nano откройте конфиг Nginx:
+
+    ```bash
+    nano /etc/nginx/sites-enabled/default
+    ```
+
+8. Измените настройки location в секции server:
+
+    ```bash
+    location / {
+        proxy_pass http://127.0.0.1:8000;
+    }
+    ```
+
+9. Проверьте работоспособность конфига и перезапустите Nginx:
+
+    ```bash
+    sudo nginx -t 
+    sudo service nginx reload
+    ```
+
+### Настройка CI/CD
+
+1. Файл workflow уже написан. Он находится в директории
+
+    ```bash
+    kittygram/.github/workflows/main.yml
+    ```
+
+2. Для адаптации его на своем сервере добавьте секреты в GitHub Actions:
+
+    ```bash
+    DOCKER_PASSWORD - пароль от аккаунта DockerHub
+    DOCKER_USERNAME - логин DockerHub
+    HOST - IP адресс сервера
+    USER - логин на сервере
+    SSH_KEY - SSH ключ
+    SSH_PASSPHRASE - пароль от сервера
+    TELEGRAM_TO - ваш Telegram ID
+    TELEGRAM_TOKEN - токена вашего Telegram бота
+    ```

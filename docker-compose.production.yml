@@ -25,6 +25,7 @@ services:
     volumes:
       - kittygram_static:/static
     command: cp -r /app/build/. /static/
+    
   gateway:
     image: baronfel/kittygram_gateway
     env_file: .env
