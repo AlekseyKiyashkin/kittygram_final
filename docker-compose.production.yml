@@ -8,11 +8,13 @@ volumes:
 services:
   db:
     image: postgres:13
+    restart: always
     env_file: .env
     volumes:
       - pg_data_kittygram_production:/var/lib/postgresql/data
   backend:
     image: baronfel/kittygram_backend
+    restart: always
     env_file: .env
     volumes:
       - kittygram_static:/backend_static
@@ -28,6 +30,7 @@ services:
     
   gateway:
     image: baronfel/kittygram_gateway
+    restart: always
     env_file: .env
     ports:
       - 9000:80
