@@ -1,6 +1,7 @@
 FROM python:3.9-alpine
+RUN apk add --no-cache python3-pip
 WORKDIR /app
 COPY requirements.txt ./
-RUN pip install -r requirements.txt --no-cache-dir
+RUN pip3 install --no-cache-dir -r requirements.txt
 COPY . .
 CMD ["gunicorn", "--bind", "0.0.0.0:9000", "kittygram_backend.wsgi"]
