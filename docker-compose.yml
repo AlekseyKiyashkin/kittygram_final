@@ -8,13 +8,13 @@ volumes:
 services:
   db:
     image: postgres:13
+    restart: always
     env_file: .env
     volumes:
       - pg_data_kittygram:/var/lib/postgresql/data
-    environment:
-      - POSTGRES_PASSWORD=mysecretpassword
   backend:
     build: ./backend/
+    restart: always
     env_file: .env
     volumes:
       - kittygram_static:/backend_static
@@ -30,6 +30,7 @@ services:
     
   gateway:
     build: ./nginx/
+    restart: always
     env_file: .env
     ports:
       - 9000:80
