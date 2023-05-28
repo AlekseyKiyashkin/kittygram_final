@@ -3,7 +3,7 @@ name: Main kittygram workflow
 on:
   push:
     branches:
-      - '**'
+    - '**'
 
 jobs:
   tests:
