@@ -1,10 +1,5 @@
 name: Main kittygram workflow
 
-on:
-  push:
-    branches:
-      - '**'
-
 jobs:
   tests:
     runs-on: ubuntu-latest
