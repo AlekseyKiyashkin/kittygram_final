@@ -1,9 +1,9 @@
-version: '3'
+version: '3.7'
 
 volumes:
-  pg_data_kittygram_production:
-  kittygram_static:
+  pg_data_kittygram:
   media:
+  admin_static:
 
 services:
   db:
@@ -11,29 +11,22 @@ services:
     restart: always
     env_file: .env
     volumes:
-      - pg_data_kittygram_production:/var/lib/postgresql/data
+      - pg_data_kittygram:/var/lib/postgresql/data
   backend:
-    image: baronfel/kittygram_backend
+    image: kryssperer/kittygram_final-backend:1
     restart: always
     env_file: .env
     volumes:
-      - kittygram_static:/backend_static
+      - admin_static:/backend_static
       - media:/app/media
     depends_on:
       - db
-  frontend:
-    env_file: .env
-    image: baronfel/kittygram_frontend
-    volumes:
-      - kittygram_static:/static
-    command: cp -r /app/build/. /static/
     
   gateway:
-    image: baronfel/kittygram_gateway
+    image: kryssperer/kittygram_final-nginx:1
     restart: always
     env_file: .env
     ports:
       - 9000:80
     volumes:
-      - kittygram_static:/static
       - media:/media

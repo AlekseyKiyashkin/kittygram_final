@@ -4,6 +4,7 @@ volumes:
   pg_data_kittygram:
   kittygram_static:
   media:
+  admin_static:
 
 services:
   db:
@@ -17,7 +18,7 @@ services:
     restart: always
     env_file: .env
     volumes:
-      - kittygram_static:/backend_static
+      - admin_static:/backend_static
       - media:/app/media
     depends_on:
       - db
@@ -28,7 +29,7 @@ services:
       - kittygram_static:/static
     command: cp -r /app/build/. /static/
     
-  gateway:
+  nginx:
     build: ./nginx/
     restart: always
     env_file: .env
@@ -37,3 +38,5 @@ services:
     volumes:
       - kittygram_static:/static
       - media:/media
+    depends_on: 
+      - frontend
