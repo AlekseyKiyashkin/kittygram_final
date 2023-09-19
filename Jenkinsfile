@@ -1,8 +1,9 @@
 pipeline {
 
   environment {
-    dockerimagename = "kryssperer/foodgram-backend"
+    dockerimagename = "kryssperer/kittygram-backend"
     dockerImage = ""
+    dockerfilePath = "backend/"
   }
 
   agent any
