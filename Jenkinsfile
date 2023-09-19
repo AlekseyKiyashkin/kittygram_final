@@ -9,11 +9,11 @@ pipeline {
 
   stages {
 
-    stage('Checkout Source') {
+/*    stage('Checkout Source') {
       steps {
         git 'https://github.com/AlekseyKiyashkin/kittygram_final.git'
       }
-    }
+    }*/
 
     stage('Build image') {
       steps{
