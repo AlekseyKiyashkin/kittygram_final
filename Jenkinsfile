@@ -4,6 +4,7 @@ pipeline {
     dockerimagename = "kryssperer/kittygram-backend"
     dockerImage = ""
     dockerfilePath = "backend/Dockerfile"
+    buildContext = "backend/"
   }
 
   agent any
@@ -19,7 +20,7 @@ pipeline {
     stage('Build image') {
       steps{
         script {
-          dockerImage = docker.build dockerimagename, "--file ${dockerfilePath} ."
+          dockerImage = docker.build dockerimagename, "--file ${dockerfilePath} ${buildContext}"
         }
       }
     }
